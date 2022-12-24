@@ -8,7 +8,8 @@ const User = sequelize.define("user", {
 });
 
 const Task = sequelize.define("task", {
-    data: {type: DataTypes.JSON},
+    id: {type: DataTypes.STRING, primaryKey: true, unique: true},
+    taskData: {type: DataTypes.JSON},
 });
 
 User.hasMany(Task);

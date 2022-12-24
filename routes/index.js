@@ -5,6 +5,6 @@ const Router = require("express");
 const router = new Router();
 
 router.use("/user", userRouter);
-router.use("/post", taskRouter);
+router.use("/task", taskRouter);
 
 module.exports = router;
