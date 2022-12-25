@@ -3,39 +3,43 @@ const ApiError = require("../error/ApiError");
 
 class TaskController {
     async create(req, res){
+        // добавить проверку на передаваемые данные
         const {id, ...rest} = req.body;
-        if (id && rest){
-            await Task.create({id: id, taskData: rest});
-            return res.status(200).json({message: "Задача успешно добавлена"});
-        }
-
-        return next(ApiError.badRequest("Запрос передан некорректно"));
+        const task = await Task.create({id: id, taskData: rest});
+        return res.json(task);
     };
 
     async getAll(req, res){
         const tasks = await Task.findAll();
-        return res.status(200).json(tasks);
+        return res.json(tasks);
     };
 
     async delete(req, res, next){
-        const deleted = await Task.destroy({where: {id: req.params.id}});
-        if(deleted) {
+        const {id} = req.params;
+        const tasks = await Task.findAll();
+        const deletedTask = tasks.find(task => task.dataValues.id === id);
+
+        if(deletedTask) {
             return res.status(200).json({message: "Задача успешно удалена"});
         }
-
-        return next(ApiError.notFound("Задача с таким id не найдена"));
+        return next(ApiError.badRequest("Задача с таким id не найдена"));
     };
 
     async update(req, res, next){
-        if(req.body) {
-            const update = await Task.update({taskData: req.body}, {where: {id: req.params.id}});
-            if (update) {
+        const {id} = req.params;
+        const tasks = await Task.findAll();
+        tasks.forEach(task => {
+            if (task.dataValues.id === id){
+                task.dataValues.taskData = req.body;
                 return res.status(200).json({message: "Задача успешно обновлена"});
             }
+        });
 
-            return next(ApiError.notFound("Задача с таким id не найдена"));
-        }
-        return next(ApiError.badRequest("Запрос передан некорректно"));
+        return next(ApiError.badRequest("Задача с таким id не найдена"));
+    };
+
+    async getOne(req, res){
+        //возможно и не нужно
     };
 }
 
