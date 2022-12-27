@@ -30,12 +30,12 @@ class UserController {
     async login(req, res, next){
         const {login, password} = req.body;
         if (login && password){
-            const isUser = await User.findOne({where: {login}});
-            if (isUser){
-                const isValidPassword = bcrypt.compareSync(password, isUser.password);
+            const user = await User.findOne({where: {login}});
+            if (user){
+                const isValidPassword = bcrypt.compareSync(password, user.password);
                 if (isValidPassword){
                     const token = jwt.sign(
-                        {id: isUser.id, login: isUser.login},
+                        {id: user.id, login: user.login},
                         process.env.SECRET_KEY,
                         {expiresIn: "24h"},
                     );
@@ -53,7 +53,7 @@ class UserController {
     };
 
     async check(req, res, next){
-
+        return res.json({message: "working"});
     };
 }
 
