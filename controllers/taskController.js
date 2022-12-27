@@ -38,10 +38,10 @@ class TaskController {
         try {
             const {userId} = req.body;
             const deleted = await Task.destroy({where: {id: req.params.id, userId}});
-            if(deleted) {
-                return res.status(200).json({message: "Задача успешно удалена"});
+            if(!deleted) {
+                return next(ApiError.notFound("Задача не найдена"));
             }
-            return next(ApiError.notFound("Задача не найдена"));
+            else return res.status(200).json({message: "Задача успешно удалена"});
         } catch (e) {
             return next(ApiError.badRequest("Запрос передан некорректно"));
         }
@@ -64,10 +64,9 @@ class TaskController {
                 },
                 {where: {id: req.params.id, userId}},
             );
-            if (update) {
-                return res.status(200).json({message: "Задача успешно обновлена"});
-            }
-            return next(ApiError.notFound("Задача не найдена"));
+            if (!update) {
+                return next(ApiError.notFound("Задача не найдена"));
+            }else return res.status(200).json({message: "Задача успешно обновлена"});
         } catch (e) {
             return next(ApiError.badRequest("Запрос передан некорректно"));
         }

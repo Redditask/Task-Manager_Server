@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const ApiError = require("../error/ApiError");
 
 module.exports = (req, res, next) => {
     if(req.method === "OPTIONS"){
@@ -11,9 +12,8 @@ module.exports = (req, res, next) => {
             req.user = jwt.verify(token, process.env.SECRET_KEY);
             next();
         }
-
         return res.status(401).json({message: "Пользователь не авторизован"});
     }catch (e){
-       return res.status(401).json({message: "Пользователь не авторизован"});
+       return next(ApiError.internal("Произошла непредвиденная ошибка"))
     }
 };

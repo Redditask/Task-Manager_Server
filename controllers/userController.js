@@ -29,31 +29,31 @@ class UserController {
 
     async login(req, res, next){
         const {login, password} = req.body;
-        if (login && password){
-            const user = await User.findOne({where: {login}});
-            if (user){
-                const isValidPassword = bcrypt.compareSync(password, user.password);
-                if (isValidPassword){
-                    const token = jwt.sign(
-                        {id: user.id, login: user.login},
-                        process.env.SECRET_KEY,
-                        {expiresIn: "24h"},
-                    );
+        if (!(login && password)) {
+            return next(ApiError.badRequest("Данные для входа некорректны"));
+        }
 
-                    return res.json({token});
-                }
-
-                return next(ApiError.badRequest("Указан неверный пароль"));
-            }
-
+        const user = await User.findOne({where: {login}});
+        if (!user) {
             return next(ApiError.notFound("Такого пользователя не существует"));
         }
 
-        return next(ApiError.badRequest("Данные для входа некорректны"));
+        const isValidPassword = bcrypt.compareSync(password, user.password);
+        if (!isValidPassword) {
+            return next(ApiError.badRequest("Указан неверный пароль"));
+        }
+
+        const token = jwt.sign(
+            {id: user.id, login: user.login},
+            process.env.SECRET_KEY,
+            {expiresIn: "24h"},
+        );
+
+        return res.json({token});
     };
 
     async check(req, res, next){
-        return res.json({message: "working"});
+        return res.json({message: "is auth"});
     };
 }
 
