@@ -3,7 +3,7 @@ const ApiError = require("../error/ApiError");
 
 class TaskController {
     async create(req, res, next) {
-        const {id, taskText, year, month, day, startTime, endTime, color} = req.body;
+        const {id, taskText, year, month, day, startTime, endTime, color, userId} = req.body;
         try {
             await Task.create({
                 id: id,
@@ -16,6 +16,7 @@ class TaskController {
                 endHour: endTime.hour,
                 endMin: endTime.min,
                 color: color,
+                userId: userId,
             });
             return res.status(200).json({message: "Задача успешно добавлена"});
         } catch (e) {
@@ -23,23 +24,32 @@ class TaskController {
         }
     };
 
-    async getAll(req, res) {
-        const tasks = await Task.findAll();
-        return res.status(200).json(tasks);
+    async getAll(req, res, next) {
+        try {
+            const {userId} = req.body;
+            const tasks = await Task.findAll({where: {userId}});
+            return res.status(200).json(tasks);
+        }catch (e) {
+            return next(ApiError.badRequest("Запрос передан некорректно"));
+        }
     };
 
     async delete(req, res, next) {
         try {
-            await Task.destroy({where: {id: req.params.id}});
-            return res.status(200).json({message: "Задача успешно удалена"});
+            const {userId} = req.body;
+            const deleted = await Task.destroy({where: {id: req.params.id, userId}});
+            if(deleted) {
+                return res.status(200).json({message: "Задача успешно удалена"});
+            }
+            return next(ApiError.notFound("Задача не найдена"));
         } catch (e) {
-            return next(ApiError.notFound("Задача с таким id не найдена"));
+            return next(ApiError.badRequest("Запрос передан некорректно"));
         }
     };
 
     async update(req, res, next) {
         try {
-            const {taskText, year, month, day, startTime, endTime, color} = req.body;
+            const {taskText, year, month, day, startTime, endTime, color, userId} = req.body;
             const update = await Task.update(
                 {
                     taskText: taskText,
@@ -52,12 +62,12 @@ class TaskController {
                     endMin: endTime.min,
                     color: color,
                 },
-                {where: {id: req.params.id}},
+                {where: {id: req.params.id, userId}},
             );
             if (update) {
                 return res.status(200).json({message: "Задача успешно обновлена"});
             }
-            return next(ApiError.notFound("Задача с таким id не найдена"));
+            return next(ApiError.notFound("Задача не найдена"));
         } catch (e) {
             return next(ApiError.badRequest("Запрос передан некорректно"));
         }
