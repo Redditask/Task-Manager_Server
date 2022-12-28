@@ -52,8 +52,14 @@ class UserController {
         return res.json({token});
     };
 
-    async check(req, res, next){
-        return res.json({message: "is auth"});
+    async check(req, res, next) {
+        const token = jwt.sign(
+            {id: req.user.id, login: req.user.login},
+            process.env.SECRET_KEY,
+            {expiresIn: "24h"},
+        );
+
+        return res.json({token});
     };
 }
 
