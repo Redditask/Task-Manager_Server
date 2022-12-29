@@ -13,10 +13,8 @@ const Task = sequelize.define("task", {
     year: {type: DataTypes.INTEGER},
     month: {type: DataTypes.INTEGER},
     day: {type: DataTypes.INTEGER},
-    startHour: {type: DataTypes.INTEGER},
-    startMin: {type: DataTypes.INTEGER},
-    endHour: {type: DataTypes.INTEGER},
-    endMin: {type: DataTypes.INTEGER},
+    startTime: {type: DataTypes.JSON},
+    endTime: {type: DataTypes.JSON},
     color: {type: DataTypes.STRING},
 });
 
