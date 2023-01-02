@@ -1,7 +1,6 @@
 const {Task} = require("../models/models");
 const ApiError = require("../error/ApiError");
 
-//отрефакторить это
 class TaskController {
     async create(req, res, next) {
         const {task, userId} = req.body;
@@ -26,9 +25,11 @@ class TaskController {
 
     async getAll(req, res, next) {
         try {
-            const tasks = await Task.findAll({where: {userId: req.params.userId}});
+            const userId = req.params.userId;
+            const tasks = await Task.findAll({where: {userId}});
             return res.status(200).json(tasks);
         }catch (e) {
+            console.log(e)
             return next(ApiError.badRequest("Запрос передан некорректно"));
         }
     };
@@ -36,12 +37,15 @@ class TaskController {
     async delete(req, res, next) {
         try {
             const {id} = req.body;
-            const deleted = await Task.destroy({where: {id}});
+            const userId =  req.params.userId;
+            console.log(req.body)
+            const deleted = await Task.destroy({where: {id, userId}});
             if(!deleted) {
                 return next(ApiError.notFound("Задача не найдена"));
             }
             else return res.status(200).json({message: "Задача успешно удалена"});
         } catch (e) {
+            console.log(e)
             return next(ApiError.badRequest("Запрос передан некорректно"));
         }
     };
@@ -49,6 +53,7 @@ class TaskController {
     async update(req, res, next) {
         try {
             const {task} = req.body;
+            const userId = req.params.userId
             const update = await Task.update(
                 {
                     taskText: task.taskText,
@@ -56,7 +61,7 @@ class TaskController {
                     endTime: task.endTime,
                     color: task.color,
                 },
-                {where: {id: task.id}},
+                {where: {id: task.id, userId}},
             );
             if (!update) {
                 return next(ApiError.notFound("Задача не найдена"));
