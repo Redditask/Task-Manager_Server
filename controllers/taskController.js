@@ -3,7 +3,9 @@ const ApiError = require("../error/ApiError");
 
 class TaskController {
     async create(req, res, next) {
-        const {task, userId} = req.body;
+        const {task} = req.body;
+        const userId = req.params.userId;
+        console.log(req.params)
         try {
             await Task.create({
                 id: task.id,
@@ -18,7 +20,6 @@ class TaskController {
             });
             return res.status(200).json({message: "Задача успешно добавлена"});
         } catch (e) {
-            console.log(e)
             return next(ApiError.badRequest("Запрос передан некорректно"));
         }
     };
@@ -38,14 +39,12 @@ class TaskController {
         try {
             const {id} = req.body;
             const userId =  req.params.userId;
-            console.log(req.body)
             const deleted = await Task.destroy({where: {id, userId}});
             if(!deleted) {
-                return next(ApiError.notFound("Задача не найдена"));
+                return next(ApiError.notFound("Такая задача не найдена"));
             }
             else return res.status(200).json({message: "Задача успешно удалена"});
         } catch (e) {
-            console.log(e)
             return next(ApiError.badRequest("Запрос передан некорректно"));
         }
     };
@@ -64,7 +63,7 @@ class TaskController {
                 {where: {id: task.id, userId}},
             );
             if (!update) {
-                return next(ApiError.notFound("Задача не найдена"));
+                return next(ApiError.notFound("Такая задача не найдена"));
             }else return res.status(200).json({message: "Задача успешно обновлена"});
         } catch (e) {
             return next(ApiError.badRequest("Запрос передан некорректно"));

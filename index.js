@@ -14,11 +14,14 @@ app.use(express.json());
 app.use("/api", router);
 app.use(errorHandler);
 
+//ToDo:
+// readme написать
+// переписать на TS
 const start = async () => {
     try {
         await sequelize.authenticate();
         await sequelize.sync();
-        app.listen(PORT, () => console.log("working"));
+        app.listen(PORT, () => console.log(`Started on ${PORT} port`));
     } catch (e) {
         console.log(e);
     }

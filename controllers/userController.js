@@ -6,7 +6,6 @@ const {User} = require("../models/models");
 class UserController {
     async registration(req, res, next){
         const {login, password} = req.body;
-        //ToDo: сделать нормальную валидацию
         if(login && password){
             const isUser = await User.findOne({where: {login}});
             if(isUser){
@@ -52,7 +51,7 @@ class UserController {
         return res.json({token});
     };
 
-    async check(req, res, next) {
+    async check(req, res) {
         const token = jwt.sign(
             {id: req.user.id, login: req.user.login},
             process.env.SECRET_KEY,
